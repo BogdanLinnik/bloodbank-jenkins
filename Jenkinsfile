@@ -2,13 +2,15 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()
+        githubPush(
+            branchFilter: 'refs/heads/master'
+        )
     }
 
     stages {
         stage('Fetch Code') {
             steps {
-                sshagent(['azure-vm-ssh-key']) {
+                sshagent(['server_key']) {
                     sh '''
                         ssh $AZURE_VM_USER@$AZURE_VM_HOST "cd /var/www/html && \
                         git fetch origin && \
@@ -20,7 +22,7 @@ pipeline {
 
         stage('Restart Apache') {
             steps {
-                sshagent(['azure-vm-ssh-key']) {
+                sshagent(['server_key']) {
                     sh '''
                         ssh $AZURE_VM_USER@$AZURE_VM_HOST "sudo systemctl restart apache2"
                     '''
@@ -30,6 +32,9 @@ pipeline {
 
         stage('Health Check') {
             steps {
+                options {
+                    timeout(time: 5, unit: 'MINUTES')
+                }
                 script {
                     def response = sh(
                         script: "curl -s -o /dev/null -w '%{http_code}' http://$AZURE_VM_HOST",
