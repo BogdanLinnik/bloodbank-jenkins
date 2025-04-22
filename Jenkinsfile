@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        githubPush(
-            branchFilter: 'refs/heads/master'
-        )
+        githubPush()
     }
 
     stages {
