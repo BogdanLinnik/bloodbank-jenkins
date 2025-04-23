@@ -6,10 +6,6 @@ pipeline {
         CONFIG_FILE_ID = 'azure_config'
     }
 
-    triggers {
-        githubPush()
-    }
-
     stages {
         stage('Load Configuration') {
             steps {
